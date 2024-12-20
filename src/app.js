@@ -23,4 +23,16 @@ app.use(express.static("public"))
 app.use(cookieParser())
 
 // middleware is like checking before sending res to user 
+
+// routes import
+
+import userRouter from './routes/user.routes.js'
+
+//routes declaration
+// with use we can use all the router
+app.use("/api/v1/users",userRouter)
+
+ // it will pass control to userRouter it will in its file
+
+ 
 export {app}  
