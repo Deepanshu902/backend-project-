@@ -4,7 +4,10 @@ import {registerUser} from "../controllers/user.controller.js"
 
 import {upload} from "../middlewares/multer.middlewares.js"
 
-import {loginUser,registerUser,LogoutUser} from "../controller/user.controller.js"
+import {loginUser,LogoutUser} from "../controllers/user.controller.js"
+
+import { verifyJWT } from "../middlewares/auth.middleware.js"
+
 const router = Router()
 
 

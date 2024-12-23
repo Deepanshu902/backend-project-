@@ -97,7 +97,7 @@ const registerUser = asyncHandler( async(req,res)=>{
 
 const loginUser = asyncHandler(async(req,res)=>{
       const {email,username,password} = req.body
-      if(!username || !email){
+      if(!username && !email){
          throw new ApiError(400,"Username or email is req")
       }
 
@@ -146,17 +146,18 @@ const loginUser = asyncHandler(async(req,res)=>{
    })
 
 
-   const LogoutUser = asyncHandler(async(res,req)=>{
+   const LogoutUser = asyncHandler(async(req,res)=>{
    await User.findByIdAndUpdate(
       req.user._id,
       {
          $set:{
             refreshToken: undefined
+         }
          },
          {
             new: true
          }
-      }
+      
     )
     const options = {
       httpOnly:true,  // anyone can modifiy cookie from frontend but after after this frontend can only see
@@ -167,6 +168,7 @@ const loginUser = asyncHandler(async(req,res)=>{
    clearCookie("accessToken",options).
    clearCookie("refreshToken",options).
    json(new ApiResponse(200,{},"User Logged out"))
+
    })
 
 
