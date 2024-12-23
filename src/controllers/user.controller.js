@@ -4,6 +4,35 @@ import {User} from "../models/user.model.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 // will repeat for other project also 
+
+
+
+
+
+const  generateAccessAndRefreshTokens = async(userId)=>{
+   try{
+      const user = await User.findOne(userId)
+    const accessToken =  user.generateAccessToken()
+     const refreshToken=  user.generateRefreshToken()
+
+      user.refreshToken = refreshToken // save value to db 
+      await  user.save({ validateBeforeSave : false })  // save the updated user
+      // dont do any validation just save the user
+
+      return {refreshToken,accessToken}
+
+   }
+   catch(error){
+      throw new ApiError(501,"Something went wrong while generating refresh and access token ")
+   }
+}
+
+
+
+
+
+
+
 const registerUser = asyncHandler( async(req,res)=>{
    const {fullname,email,username,password} = req.body
 
@@ -66,7 +95,86 @@ const registerUser = asyncHandler( async(req,res)=>{
 
 
 
-export {registerUser}
+const loginUser = asyncHandler(async(req,res)=>{
+      const {email,username,password} = req.body
+      if(!username || !email){
+         throw new ApiError(400,"Username or email is req")
+      }
+
+    const user =  await User.findOne({
+         $or : [{email},{username}]
+      })
+         // User is from mongo so findOne method work but user is our so only our created method work not findOne which is from mongo
+      if(!user){
+         throw new ApiError(404,"User dont exist")
+      }
+
+      const isPasswordValid = await user.isPasswordCorrect(password)
+
+      
+      if(!isPasswordValid){
+         throw new ApiError(401,"Password incorrect")
+      }
+
+    const {refreshToken,accessToken} =  await generateAccessAndRefreshTokens(user._id)  // method created become this is common 
+
+
+      // see if using db query expensive so just update operation 
+      // decide based on project
+      const loggedInUser = await User.findById(user._id).select(
+         "-password -refreshToken"
+      )
+
+
+      // sending cookies
+
+      const options = {
+         httpOnly:true,  // anyone can modifiy cookie from frontend but after after this frontend can only see
+         secure:true
+      }
+      return res.status(200)
+      .cookie("accessToken",accessToken,options)
+      .cookie("refreshToken",refreshToken,options)
+      .json(
+         new ApiResponse(200,
+            {
+            user:loggedInUser,accessToken,refreshToken  // good practise to send them seperately also after sending cookie
+         },
+         "User Logged In Successfully"
+      )
+      )
+   })
+
+
+   const LogoutUser = asyncHandler(async(res,req)=>{
+   await User.findByIdAndUpdate(
+      req.user._id,
+      {
+         $set:{
+            refreshToken: undefined
+         },
+         {
+            new: true
+         }
+      }
+    )
+    const options = {
+      httpOnly:true,  // anyone can modifiy cookie from frontend but after after this frontend can only see
+      secure:true
+   }
+
+   return res.status(200).
+   clearCookie("accessToken",options).
+   clearCookie("refreshToken",options).
+   json(new ApiResponse(200,{},"User Logged out"))
+   })
+
+
+export {
+   registerUser,
+   loginUser,
+   LogoutUser
+}
 // import in app.js
 
 
@@ -81,3 +189,13 @@ export {registerUser}
     // remove password and refresh token field from res
     // check for user creation
     // return res 
+
+
+
+    // Login todo
+    // get email or username 
+    // check if email or username exist in db
+    //if yes then check password and login the user 
+    // access token and refresh token
+    //send cookies
+    //if no tell them to register
