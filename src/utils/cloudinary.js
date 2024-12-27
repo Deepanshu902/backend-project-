@@ -9,7 +9,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET // Click 'View API Keys' above to copy your API secret
 });
 
-const uploadOnCloudinary = async (localFilePath) => {
+const uploadOnCloudinary = async (localFilePath,oldImagePublicId = null) => {
     try {
         if (!localFilePath) return null;
 
@@ -17,6 +17,12 @@ const uploadOnCloudinary = async (localFilePath) => {
         const response = await cloudinary.uploader.upload(localFilePath, {
             resource_type: "auto", // Auto-detect the file type (image, video, etc.)
         });
+
+
+        if (oldImagePublicId) { // delete old file 
+            const deleteResponse = await cloudinary.uploader.destroy(oldImagePublicId);
+            console.log("Old image deleted:", deleteResponse);
+        }
 
         // Check if the file exists before deleting it
         if (fs.existsSync(localFilePath)) {

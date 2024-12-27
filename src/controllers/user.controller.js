@@ -260,11 +260,18 @@ const loginUser = asyncHandler(async(req,res)=>{
 
     const updateUserAvatar = asyncHandler(async(req,res)=>{
       const avatarLocalPath = req.file?.path
+
       if(!avatarLocalPath){
          throw new ApiError(400,"Avatar file is missing")
       }
 
-     const avatar = await uploadOnCloudinary(avatarLocalPath)
+      // this delete using chatgpt code so understand it from there
+
+      // can have error for new user didn't checked for now if there is error i will update it
+      const user = await User.findById(req.user._id);
+      const oldAvatarPublicId = user.avatar?.split("/").pop().split(".")[0];
+
+     const avatar = await uploadOnCloudinary(avatarLocalPath,oldAvatarPublicId)
 
 
       if(!avatar.url){
@@ -293,7 +300,11 @@ const loginUser = asyncHandler(async(req,res)=>{
          throw new ApiError(400,"cover Image file is missing")
       }
 
-     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+      const user = await User.findById(req.user._id);
+      const oldCoverImagePublicId = user.coverImage?.split("/").pop().split(".")[0];
+
+
+     const coverImage = await uploadOnCloudinary(coverImageLocalPath,oldCoverImagePublicId)
 
 
       if(!coverImage.url){
