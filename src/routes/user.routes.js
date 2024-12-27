@@ -18,7 +18,7 @@ import {updateAccountDetails} from "../controllers/user.controller.js"
 
 import {updateUserCoverImage} from "../controllers/user.controller.js"
 
-import {getUserChannelProfile, getWatchHistory} from "../controllers/user.controller.js"
+import {getUserChannelProfile, getWatchHistory,updateUserAvatar} from "../controllers/user.controller.js"
 
 const router = Router()
 
@@ -46,7 +46,7 @@ router.route("/refresh-token").post(refreshAccessToken)
 
 router.route("/change-password").post(verifyJWT,changeCurrentPassword)
 
-router.route("/current-user").get(verifyJWT.getCurrentUser)
+router.route("/current-user").get(verifyJWT,getCurrentUser)
 
 router.route("/update-account").patch(verifyJWT,updateAccountDetails)  // patch for updating only needed data not full data
 

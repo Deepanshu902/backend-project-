@@ -258,6 +258,7 @@ const loginUser = asyncHandler(async(req,res)=>{
      return res.status(200).json(new ApiResponse(200,user,"Account Details Updated"))
     })
 
+
     const updateUserAvatar = asyncHandler(async(req,res)=>{
       const avatarLocalPath = req.file?.path
 
@@ -278,7 +279,7 @@ const loginUser = asyncHandler(async(req,res)=>{
          throw new ApiError(400,"Error while uploading avatar")
       }
 
-    const user =  await User.findByIdAndUpdate(req.user._id,
+        const updatedUser =  await User.findByIdAndUpdate(req.user._id,
          {
             $set :{
               avatar: avatar.url  // in model we take it string and cloudinary provide object so we use avatar.url for url 
@@ -311,7 +312,7 @@ const loginUser = asyncHandler(async(req,res)=>{
          throw new ApiError(400,"Error while uploading avatar")
       }
 
-    const user =  await User.findByIdAndUpdate(req.user._id,
+    const updatedUser =  await User.findByIdAndUpdate(req.user._id,
          {
             $set :{
               coverImage: coverImage.url  // in model we take it string and cloudinary provide object so we use avatar.url for url 
@@ -333,7 +334,7 @@ const loginUser = asyncHandler(async(req,res)=>{
       }
       // we get array when aggregating
       // some advanced topic herer
-   const channel =  await  User.aggregate([  
+          const channel =  await  User.aggregate([  
       {
                $match:{
                   username : username?.toLowerCase()
@@ -384,8 +385,8 @@ const loginUser = asyncHandler(async(req,res)=>{
             
          }
       }
-   ])
-   if(!channel?.length()){
+      ])
+    if(!channel?.length()){
       throw new ApiError(401,"Channel Doesn't exist")
    }
          return res.status(200)
@@ -456,7 +457,6 @@ export {
    updateUserAvatar,
    updateUserCoverImage,
    getUserChannelProfile,
-   channel,
    getWatchHistory
 
 }
