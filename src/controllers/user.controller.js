@@ -321,6 +321,7 @@ const loginUser = asyncHandler(async(req,res)=>{
 
       }
       // we get array when aggregating
+      // some advanced topic herer
    const channel =  await  User.aggregate([  
       {
                $match:{
@@ -381,6 +382,56 @@ const loginUser = asyncHandler(async(req,res)=>{
 
     })
 
+    // very advanced
+    const getWatchHistory = asyncHandler(async(req,res)=>{
+     // req.user._id // interview we get mongodb objectid which is string but we are using moongoose so it automatically convert it and do work
+
+      const user = await User.aggregate([ // but in aggregration mongo work not moongose so we have to convert this _id 
+         {
+            $match:{
+               _id :new mongoose.Types.ObjectId(req.user._id)
+            }
+         },
+         {
+            $lookup:{
+               from:"videos",
+               localField:"watchHistory",
+               foreignField:"_id",
+               as : "watchHistory",
+               pipeline: [ // sub pipeline 
+                  {
+                        $lookup:{
+                           from:"users",
+                           localField:"owner",
+                           foreignField:"_id",
+                           as:"owner",
+                           pipeline: [ // now owner field only have fullname,username,avatar not all the data like password ,refresh token
+                              {
+                                 $project:{
+                                    fullname:1,
+                                    username:1,
+                                    avatar:1 
+                                 }
+                              }
+                           ]
+                     
+                        }
+                  },
+                  {  // only for frontend easyness  as with this array dont go only its 0 element goes to frontend
+                     $addFields:{
+                        owner:{
+                           $first:"$owner"
+                        }
+                     }
+                  }
+               ]
+            }
+         }
+      ])
+      return res.status(200)
+      .json(new ApiResponse(200,user[0].watchHistory,"Watch history fetched successfully")
+   )
+    })
 
 
 export {
@@ -393,7 +444,9 @@ export {
    updateAccountDetails,
    updateUserAvatar,
    updateUserCoverImage,
-   getUserChannelProfile
+   getUserChannelProfile,
+   channel,
+   getWatchHistory
 
 }
 // import in app.js

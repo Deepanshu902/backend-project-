@@ -94,3 +94,6 @@ userSchema.methods.generateRefreshToken = function(){
 }
 
 export const User = mongoose.model("User",userSchema)
+
+// always remember that this User after .model goes in lowercase and in pural from to mongo 
+// this is must to remember for work
