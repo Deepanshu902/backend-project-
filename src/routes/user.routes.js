@@ -10,6 +10,16 @@ import { verifyJWT } from "../middlewares/auth.middleware.js"
 
 import { refreshAccessToken } from "../controllers/user.controller.js"
 
+import {changeCurrentPassword} from "../controllers/user.controller.js"
+
+import {getCurrentUser} from "../controllers/user.controller.js"
+
+import {updateAccountDetails} from "../controllers/user.controller.js"
+
+import {updateUserCoverImage} from "../controllers/user.controller.js"
+
+import {getUserChannelProfile, getWatchHistory} from "../controllers/user.controller.js"
+
 const router = Router()
 
 
@@ -34,6 +44,19 @@ router.route("/logout").post(verifyJWT, LogoutUser)
 router.route("/refresh-token").post(refreshAccessToken)
 
 
+router.route("/change-password").post(verifyJWT,changeCurrentPassword)
+
+router.route("/current-user").get(verifyJWT.getCurrentUser)
+
+router.route("/update-account").patch(verifyJWT,updateAccountDetails)  // patch for updating only needed data not full data
+
+router.route("/avatar").patch(verifyJWT,upload.single("avatar"),updateUserAvatar)
+
+router.route("/cover-image").patch(verifyJWT,upload.single("coverImage"),updateUserCoverImage)
+
+router.route("/channel/:username").get(verifyJWT,getUserChannelProfile) // coming from prams so problem 
+
+router.route("/watchHistory").get(verifyJWT,getWatchHistory)
 
 export default router 
 
