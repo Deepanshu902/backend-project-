@@ -224,7 +224,7 @@ const loginUser = asyncHandler(async(req,res)=>{
     const isPasswordCorrect = await  user.isPasswordCorrect(oldPassword)
 
     if(!isPasswordCorrect){
-      new throw ApiError(400,"Old password not correct")
+       throw new  ApiError(400,"Old password not correct")
     }
     user.password = newPassword
     await user.save({validateBeforeSave:false})
@@ -233,7 +233,7 @@ const loginUser = asyncHandler(async(req,res)=>{
     })
    
     const getCurrentUser = asyncHandler(async(req,res)=>{
-      return res.status(200).json(200,req.user,"CurrentUser Fetch successfully")
+      return res.status(200).json(new ApiResponse(200,req.user,"CurrentUser Fetch successfully"))
     })
 
 
