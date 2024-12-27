@@ -386,11 +386,11 @@ const loginUser = asyncHandler(async(req,res)=>{
          }
       }
       ])
-    if(!channel?.length()){
+    if(!channel?.length){
       throw new ApiError(401,"Channel Doesn't exist")
    }
          return res.status(200)
-         .json(new ApiResponse(200,channel[0,"User channel Fetched successfully"]))
+         .json(new ApiResponse(200,channel[0],"User channel Fetched successfully"))
 
     })
 
